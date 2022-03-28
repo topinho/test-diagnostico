@@ -1,0 +1,8 @@
+flask
+Flask-Sqlalchemy
+Flask-Restful
+redis
+requests
+SQLAlchemy
+simplejson
+jsonschema

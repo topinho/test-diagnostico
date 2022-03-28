@@ -1,0 +1,66 @@
+version: '3'
+
+services: 
+  web:
+    build:
+      context: .
+    image: test-diagnostico-web
+    container_name: test_diagnostico_web
+    restart: unless-stopped
+    ports:
+      - "5050:5000"
+    volumes:
+      - .:/code
+    environment:
+      FLASK_ENV: development
+      DB_HOST: db
+      DB_NAME: diagnostico
+      DB_USER: diagnostico
+      DB_PASSWORD: diagnostico
+    depends_on:
+      - db
+    networks:
+      - test-diagnostico
+
+  redis:
+    image: "redis:alpine"
+
+  #MySQL 8.0.18
+  db:
+    image: mysql
+    container_name: test_diagnostico_db
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: diagnostico
+      MYSQL_USER: diagnostico
+      MYSQL_PASSWORD: diagnostico
+      MYSQL_ROOT_PASSWORD: secret
+      TZ: America/Santiago
+    ports:
+      - 5051:3306
+    volumes:
+      - dbdata:/var/lib/mysql/
+      - ./mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      - test-diagnostico
+
+  #MySQL adminer
+  adminer:
+    image: adminer
+    container_name: test_diagnostico_adminer
+    depends_on:
+      - db
+    restart: always
+    ports:
+      - 5052:8080
+    networks:
+      - test-diagnostico
+
+networks:
+  test-diagnostico:
+    driver: bridge
+#Volumenes
+volumes:
+  dbdata:
+    driver: local
